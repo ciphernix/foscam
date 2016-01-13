@@ -5,7 +5,9 @@ import sys
 from settings import *
 from Foscam import Foscam
 from simplisafe import SimpliSafe
+from logger import Logger
 
+LOG = Logger('cams.log', name='CAMS')
 
 def get_exceptions():
     '''Returns a list of dates for which the cam should not be on.
@@ -65,6 +67,7 @@ def alarm_is_on():
         return True 
     except Exception as why:
         print "Error getting alarm status {0}".format(why)
+        LOG.error('Error getting alarm status: {0}, assuming alrm is ON'.format(why))
         return True
 
 
@@ -81,12 +84,14 @@ def main():
         for cam in cam_list:
             if not cam.is_motion_on():
                 cam.motion_on()
+                LOG.info('Turned ON motion detection {0}'.format(cam.hostname))
     else:
         #Make sure camera is off
         print "Turning off motion detection on all cameras."
         for cam in cam_list:
             if cam.is_motion_on():
                 cam.motion_off()
+                LOG.info('Turned OFF motion detection {0}'.format(cam.hostname))
 
 
 if __name__ == "__main__":
